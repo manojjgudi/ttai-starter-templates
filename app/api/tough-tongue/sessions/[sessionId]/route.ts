@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 
+// Define the type for the second argument
+type Context = {
+  params: Promise<{ sessionId: string }>;
+};
+
 export async function GET(
   req: Request,
-  { params }: { params: { sessionId: string } }
+  { params: paramsPromise }: Context // Use the Context type and rename the destructured variable
 ) {
   try {
+    const params = await paramsPromise; // Await the promise to get params
     const { sessionId } = params;
     const apiKey = process.env.TOUGH_TONGUE_API_KEY;
     
