@@ -29,6 +29,12 @@ export default function Header() {
             >
               Course
             </Link>
+            <Link 
+              href="/analysis" 
+              className={`hover:text-gray-600 ${pathname === "/analysis" ? "font-semibold" : ""}`}
+            >
+              Analysis
+            </Link>
           </nav>
           <div className="flex justify-end">
             <SignedOut>
