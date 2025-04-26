@@ -5,24 +5,28 @@ export const personalityTypes = [
     title: "The Analyst",
     description:
       "Logical, analytical, and detail-oriented. These individuals excel at problem-solving and critical thinking.",
+    mbti: "INTJ, INTP, ENTJ, ENTP (NT types)",
   },
   {
     id: 2,
     title: "The Diplomat",
     description:
       "Empathetic, cooperative, and harmony-seeking. These individuals prioritize relationships and emotional connections.",
+    mbti: "INFJ, INFP, ENFJ, ENFP (NF types)",
   },
   {
     id: 3,
     title: "The Sentinel",
     description:
       "Organized, practical, and responsible. These individuals value security, stability, and clear rules.",
+    mbti: "ISTJ, ISFJ, ESTJ, ESFJ (SJ types)",
   },
   {
     id: 4,
     title: "The Explorer",
     description:
       "Spontaneous, flexible, and adventurous. These individuals seek variety, excitement, and hands-on experiences.",
+    mbti: "ISTP, ISFP, ESTP, ESFP (SP types)",
   },
 ];
 

@@ -92,11 +92,12 @@ const Navbar = () => {
 };
 
 // Personality Card Component
-const PersonalityCard = ({ title, description }) => {
+const PersonalityCard = ({ title, description, mbti }) => {
   return html`
     <div class="personality-card">
       <h3 class="personality-title">${title}</h3>
       <p class="personality-description">${description}</p>
+      ${mbti && html`<p class="personality-mbti"><strong>MBTI:</strong> ${mbti}</p>`}
     </div>
   `;
 };
@@ -181,12 +182,6 @@ const ToughTongueAI = ({ onAssessmentStart, onAssessmentEnd }) => {
 
     if (!sessionIdToAnalyze) {
       alert("Please enter a valid session ID.");
-      return;
-    }
-
-    // Only check completion status if analyzing the current session
-    if (sessionData && sessionData.sessionId === sessionIdToAnalyze && !sessionCompleted) {
-      alert("Please complete your session before getting results.");
       return;
     }
 
@@ -282,12 +277,6 @@ const ToughTongueAI = ({ onAssessmentStart, onAssessmentEnd }) => {
         </div>
 
         <div style="margin: 20px 0; text-align: center;">
-          ${!sessionCompleted &&
-          sessionData &&
-          sessionIdInput === sessionData.sessionId &&
-          html`
-            <p class="warning-text">You must complete your session before getting results.</p>
-          `}
           <button class="btn" onClick=${getAnalysisResults}>Get Assessment Results</button>
         </div>
 
@@ -353,6 +342,7 @@ const App = () => {
                   <${PersonalityCard}
                     title=${type.title}
                     description=${type.description}
+                    mbti=${type.mbti}
                     key=${type.id}
                   />
                 `
