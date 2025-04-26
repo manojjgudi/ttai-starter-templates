@@ -77,36 +77,69 @@ export const AssessmentPage = ({ sessionData, onBack }) => {
                 <p>
                   <strong>Completed:</strong> ${new Date(sessionData.timestamp).toLocaleString()}
                 </p>
+                ${assessment.evaluation?.overall_score &&
+                html`<p><strong>Overall Score:</strong> ${assessment.evaluation.overall_score}</p>`}
               </div>
 
-              <h3>Transcript</h3>
-              <div class="transcript-container">
-                ${assessment.transcript && assessment.transcript.length
-                  ? html`
-                      <div class="transcript">
-                        ${assessment.transcript.map(
-                          (item) => html`
-                            <div class="transcript-item ${item.role}">
-                              <strong>${item.role === "assistant" ? "AI" : "You"}:</strong>
-                              ${item.content}
-                            </div>
-                          `
-                        )}
+              ${assessment.evaluation &&
+              html`
+                <h3>Evaluation</h3>
+                <div class="evaluation-container">
+                  ${assessment.evaluation.detailed_feedback &&
+                  html`
+                    <div class="feedback-section">
+                      <h4>Detailed Feedback</h4>
+                      <p>${assessment.evaluation.detailed_feedback}</p>
+                    </div>
+                  `}
+
+                  <div class="strengths-weaknesses">
+                    ${assessment.evaluation.strengths &&
+                    html`
+                      <div class="strengths">
+                        <h4>Strengths</h4>
+                        <p>${assessment.evaluation.strengths}</p>
                       </div>
-                    `
-                  : html`<p class="empty-message">Transcript not available</p>`}
-              </div>
-
-              <h3>Analysis</h3>
-              <div class="analysis-container">
-                ${assessment.analysis
-                  ? html`
-                      <pre class="analysis-json">
-${JSON.stringify(assessment.analysis, null, 2)}</pre
-                      >
-                    `
-                  : html`<p class="empty-message">Analysis not available</p>`}
-              </div>
+                    `}
+                    ${assessment.evaluation.weaknesses &&
+                    html`
+                      <div class="weaknesses">
+                        <h4>Areas for Improvement</h4>
+                        <p>${assessment.evaluation.weaknesses}</p>
+                      </div>
+                    `}
+                  </div>
+                </div>
+              `}
+              ${assessment.improvement &&
+              html`
+                <h3>Improvement Plan</h3>
+                <div class="improvement-container">
+                  ${assessment.improvement.improvement_areas &&
+                  html`
+                    <div class="improvement-areas">
+                      <h4>Focus Areas</h4>
+                      <p>${assessment.improvement.improvement_areas}</p>
+                    </div>
+                  `}
+                  ${assessment.improvement.action_items &&
+                  html`
+                    <div class="action-items">
+                      <h4>Action Items</h4>
+                      <pre>${assessment.improvement.action_items}</pre>
+                    </div>
+                  `}
+                  ${assessment.improvement.resources &&
+                  html`
+                    <div class="resources">
+                      <h4>Recommended Resources</h4>
+                      <div class="markdown-content">
+                        <pre>${assessment.improvement.resources}</pre>
+                      </div>
+                    </div>
+                  `}
+                </div>
+              `}
             </div>
           `
         : html`<p class="empty-message">No assessment data available</p>`}
