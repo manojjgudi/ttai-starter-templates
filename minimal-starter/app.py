@@ -15,11 +15,14 @@ WWW_DIR = BASE_DIR / "www"
 app = Flask(__name__, static_folder=None)  # Disable default static handling
 CORS(app)  # Enable CORS for all routes
 
-API_BASE_URL = "https://api.toughtongueai.com/api/public"
+API_BASE_URL = os.environ.get(
+    "API_BASE_URL", "https://api.toughtongueai.com/api/public"
+)
 TTAI_TOKEN = os.environ.get("TTAI_TOKEN")
 
-assert API_BASE_URL is not None, "API_BASE_URL is not set"
-assert TTAI_TOKEN is not None, "TTAI_TOKEN is not set"
+# For Vercel deployment - handle token error gracefully
+if not TTAI_TOKEN:
+    print("Warning: TTAI_TOKEN is not set")
 
 
 def tryy(response):
@@ -83,7 +86,10 @@ if __name__ == "__main__":
         port = int(os.environ.get("PORT", 8008))
         print(f"Starting server on port {port}...")
         print(f"API_BASE_URL set to: {API_BASE_URL}")
-        print(f"Using API token: {TTAI_TOKEN[:5]}...")
+        if TTAI_TOKEN:
+            print(f"Using API token: {TTAI_TOKEN[:5]}...")
+        else:
+            print("WARNING: No API token provided!")
         print(f"Serving static files from: {WWW_DIR}")
         print("Press CTRL+C to quit")
         app.run(host="0.0.0.0", port=port, debug=True)
