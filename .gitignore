@@ -2,6 +2,7 @@
 .python-version
 .env
 .cursor/rules/_*.mdc
+__pycache__
 
 # NodeJS ---
 # dependencies
@@ -33,9 +34,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
 
 # vercel
 .vercel

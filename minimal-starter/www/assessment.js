@@ -4,7 +4,7 @@ const { useState, useEffect } = preactHooks;
 const html = htm.bind(h);
 
 // Import configuration
-import { toughTongueConfig, apiConfig } from "./config.js";
+import { toughTongueConfig, apiConfig } from "/config.js";
 
 // Assessment Page Component
 export const AssessmentPage = ({ sessionData, onBack }) => {
@@ -126,7 +126,7 @@ export const AssessmentPage = ({ sessionData, onBack }) => {
                   html`
                     <div class="action-items">
                       <h4>Action Items</h4>
-                      <pre>${assessment.improvement.action_items}</pre>
+                      <pre class="content-pre">${assessment.improvement.action_items}</pre>
                     </div>
                   `}
                   ${assessment.improvement.resources &&
@@ -134,7 +134,7 @@ export const AssessmentPage = ({ sessionData, onBack }) => {
                     <div class="resources">
                       <h4>Recommended Resources</h4>
                       <div class="markdown-content">
-                        <pre>${assessment.improvement.resources}</pre>
+                        <pre class="content-pre">${assessment.improvement.resources}</pre>
                       </div>
                     </div>
                   `}
