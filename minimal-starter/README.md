@@ -1,82 +1,99 @@
-# Personality Types Explorer
+# PersonalityLens App
 
-A minimal web application that provides information about different personality types and allows users to interact with a ToughTongue AI assistant to discover their own personality type.
+A simple web application that uses ToughTongueAI to help users discover their personality type.
+
+## Project Structure
+
+- `index.html` - Main HTML file
+- `app.js` - Frontend JavaScript application using Preact
+- `assessment.js` - Assessment component
+- `data.js` - Configuration and data
+- `styles.css` - Styling
+- `backend/` - Flask backend proxy for the ToughTongueAI API
+
+## Setup Instructions
+
+### Backend Setup
+
+```bash
+# 1. Navigate to the backend directory
+cd backend
+
+# 2. Create a virtual environment (optional but recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# 3. Copy the environment variables template
+cp .env.sample .env
+# Then edit the .env file to add your ToughTongueAI token
+
+# 4. Install dependencies
+pip install -r requirements.txt
+
+# 5. Run the backend server
+python backend.py
+# The backend will run on port 8008
+```
+
+### Frontend Setup
+
+1. Just serve the HTML/JS/CSS files from a web server. You can use Python for this:
+
+   ```
+   python -m http.server 8000
+   ```
+
+   Then access the application at http://localhost:8000
+
+2. Alternatively, use any static file server or just open the index.html in a browser.
+
+## Environment Variables
+
+Environment variables are stored in a `.env` file in the backend directory. You can create this file by copying `.env.sample` and updating the values:
+
+```
+cp backend/.env.sample backend/.env
+```
+
+Available environment variables:
+
+- `API_BASE_URL` - ToughTongueAI API URL (default: https://app.toughtongueai.com/backend/api/public)
+- `TTAI_TOKEN` - API token for ToughTongueAI (required)
+- `PORT` - Port for the backend server (default: 8008)
+
+## API Endpoints
+
+The backend provides the following endpoints:
+
+- `GET /api/sessions/{session_id}` - Get session data from ToughTongueAI
+- `POST /api/analyze` - Submit data for analysis
 
 ## Features
 
-- Clean, responsive UI built with Preact (via CDN)
-- Information about different personality types
-- Integration with ToughTongue AI for personality assessment
-
-## Setup and Usage
-
-This is a client-side only application that can be served with any static file server.
-
-1. Replace the `SCENARIO_ID` in `app.js` with your actual ToughTongue AI scenario ID
-2. Host the files on any web server or open `index.html` directly in a browser
-
-### Running Locally
-
-You can run this application on localhost using several methods:
-
-#### Method 1: Using Python's built-in HTTP server
-
-If you have Python installed:
-
-```
-cd minimal-starter
-python -m http.server
-```
-
-Then visit http://localhost:8000 in your browser.
-
-#### Method 2: Using Node.js tools
-
-If you have Node.js installed:
-
-```
-cd minimal-starter
-npx http-server
-```
-
-Or install a global server:
-
-```
-npm install -g serve
-cd minimal-starter
-serve
-```
-
-#### Method 3: Using VS Code's Live Server extension
-
-If you're using VS Code, install the "Live Server" extension, right-click on index.html, and select "Open with Live Server".
-
-#### Method 4: Simply open the file
-
-Since this is a pure frontend application with no backend requirements, you can also just open the index.html file directly in your browser:
-
-```
-open minimal-starter/index.html  # On macOS
-```
-
-### ToughTongue AI Integration
-
-The application uses the ToughTongue AI embedding to provide a personality assessment. To set this up:
-
-1. Create a scenario in the ToughTongue AI platform
-2. Replace `SCENARIO_ID` in the `src` attribute of the iframe in `app.js` with your scenario ID
-3. Optionally customize the iframe appearance with URL parameters as documented in the ToughTongue AI developer guide
-
-## Customization
-
-- Color scheme: Edit the CSS variables in the `:root` selector in `styles.css`
-- Personality types: Modify the `personalityTypes` array in `app.js`
-- Layout: Adjust the grid and container styles in `styles.css`
+- Display various personality types
+- Integration with ToughTongue AI for assessments
+- Flask backend to handle API calls and avoid CORS issues
 
 ## Browser Support
 
-This application works best in modern browsers that support ES6+ features. Chrome is recommended for the best experience with ToughTongue AI integration, as there may be recording issues in Safari.
+Works best in modern browsers. Chrome is recommended for ToughTongue AI integration.
 
-## License
+---
 
-MIT
+## Appendix
+
+### Virtual Environment
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate on macOS/Linux
+source venv/bin/activate
+
+# Activate on Windows
+# venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
