@@ -4,9 +4,9 @@ const { useState, useEffect } = preactHooks;
 const html = htm.bind(h);
 
 // Import data from data.js
-import { personalityTypes, toughTongueConfig, apiConfig } from "./config.js";
+import { personalityTypes, toughTongueConfig, apiConfig } from "/config.js";
 // Import the AssessmentPage component
-import { AssessmentPage } from "./assessment.js";
+import { AssessmentPage } from "/assessment.js";
 
 // Function to call our Flask backend
 const analyzeSession = async (sessionId) => {

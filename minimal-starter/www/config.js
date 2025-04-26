@@ -30,8 +30,8 @@ export const personalityTypes = [
   },
 ];
 
-// Base API URL
-const API_BASE_URL = "http://localhost:8008/api";
+// Base API URL is always relative since we're serving from the same Flask app
+const API_BASE_URL = "/api";
 
 // ToughTongueAI configuration
 export const toughTongueConfig = {
