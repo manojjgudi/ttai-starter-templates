@@ -3,45 +3,82 @@ const { h, render, Component } = preact;
 const { useState, useEffect } = preactHooks;
 const html = htm.bind(h);
 
-// Personality types data
-const personalityTypes = [
-  {
-    id: 1,
-    title: "The Analyst (INTJ)",
-    description:
-      "Strategic thinkers who have a plan for everything. They are innovative and driven by logic rather than emotion.",
-  },
-  {
-    id: 2,
-    title: "The Diplomat (ENFJ)",
-    description:
-      "Natural leaders who are charismatic and passionate. They are altruistic and genuinely concerned about others.",
-  },
-  {
-    id: 3,
-    title: "The Sentinel (ISTJ)",
-    description:
-      "Practical and fact-minded individuals who value reliability and honor their commitments.",
-  },
-  {
-    id: 4,
-    title: "The Explorer (ESTP)",
-    description:
-      "Energetic and action-oriented, they are resourceful problem-solvers who enjoy living in the moment.",
-  },
-  {
-    id: 5,
-    title: "The Architect (INTP)",
-    description:
-      "Innovative inventors with an unquenchable thirst for knowledge. They are driven by theories and seek clarity.",
-  },
-  {
-    id: 6,
-    title: "The Campaigner (ENFP)",
-    description:
-      "Enthusiastic, creative, and sociable free spirits who find potential in every opportunity.",
-  },
-];
+// Import data from data.js
+import { personalityTypes, toughTongueConfig, apiConfig } from "./config.js";
+// Import the AssessmentPage component
+import { AssessmentPage } from "./assessment.js";
+
+// Function to call our Flask backend
+const analyzeSession = async (sessionId) => {
+  try {
+    const response = await fetch(apiConfig.endpoints.sessions(sessionId));
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error(`API Error: ${response.status}`, errorData);
+      throw new Error(`API Error: ${response.status} - ${errorData.error || "Unknown error"}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error analyzing session:", error);
+    return {
+      error: true,
+      message: error.message || "Failed to analyze session. Please try again.",
+    };
+  }
+};
+
+// Format test results helper functions
+const formatAnalysisResults = (result) => {
+  const traits =
+    result.traits && Array.isArray(result.traits)
+      ? result.traits.map((trait) => `- ${trait}\n`).join("")
+      : "- Analytical thinker\n- Detail-oriented\n- Strong communication skills";
+
+  const recommendations =
+    result.recommendations && Array.isArray(result.recommendations)
+      ? result.recommendations.map((rec) => `- ${rec}\n`).join("")
+      : "- Consider practicing active listening\n- Explore collaborative projects\n- Develop more patience in complex situations";
+
+  return `
+# Your Personality Assessment Results
+
+## Key Traits
+${traits}
+
+## Recommended Growth Areas
+${recommendations}
+
+*This assessment was completed on ${new Date().toLocaleDateString()}*
+  `;
+};
+
+const formatErrorResults = (message) => {
+  return `
+# Analysis Error
+
+${message}
+
+*Please try the assessment again or contact support if this issue persists.*
+  `;
+};
+
+const getDefaultResults = () => {
+  return `
+# Your Personality Assessment Results
+
+## Key Traits
+- Analytical thinker
+- Detail-oriented
+- Strong communication skills
+
+## Recommended Growth Areas
+- Consider practicing active listening
+- Explore collaborative projects
+- Develop more patience in complex situations
+
+*This assessment was completed on ${new Date().toLocaleDateString()}*
+  `;
+};
 
 // Navbar Component
 const Navbar = () => {
@@ -65,32 +102,66 @@ const PersonalityCard = ({ title, description }) => {
 };
 
 // ToughTongueAI Component
-const ToughTongueAI = () => {
+const ToughTongueAI = ({ onAssessmentStart, onAssessmentEnd }) => {
   const [showIframe, setShowIframe] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
+  const [sessionData, setSessionData] = useState(null);
+  const [showAssessment, setShowAssessment] = useState(false);
+  const [testResults, setTestResults] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [sessionCompleted, setSessionCompleted] = useState(false);
+  const [sessionIdInput, setSessionIdInput] = useState("");
 
   const toggleIframe = () => {
-    setShowIframe(!showIframe);
+    const newState = !showIframe;
+    setShowIframe(newState);
+
+    // Notify parent component about state change
+    if (newState) {
+      onAssessmentStart();
+      // Reset session data when toggling iframe
+      setSessionData(null);
+      setShowAssessment(false);
+      setTestResults("");
+      setSessionCompleted(false);
+      setSessionIdInput("");
+    } else {
+      onAssessmentEnd();
+    }
   };
 
   // Listen for messages from the iframe
   useEffect(() => {
-    const handleMessage = (event) => {
-      // Optional: verify the origin for security
-      // if (event.origin !== 'https://zap.orca-tone.ts.net') return;
-
+    const handleMessage = async (event) => {
       const data = event.data;
 
       if (data && data.event) {
+        console.log("Received event:", data);
+
         switch (data.event) {
           case "onStart":
             console.log("Session started:", data);
-            // You could track analytics here
+            // Store the session ID
+            setSessionData({
+              sessionId: data.sessionId,
+              status: "started",
+              timestamp: data.timestamp,
+            });
+            setSessionIdInput(data.sessionId);
             break;
+
           case "onStop":
             console.log("Session stopped:", data);
-            // You could show results or next steps here
+            // Update session status but keep iframe visible
+            const sessionId = data.sessionId || (sessionData && sessionData.sessionId);
+
+            setSessionData((prevData) => ({
+              ...prevData,
+              status: "completed",
+              timestamp: data.timestamp,
+            }));
+
+            // Mark session as completed, but don't hide iframe or load assessment yet
+            setSessionCompleted(true);
             break;
         }
       }
@@ -102,26 +173,140 @@ const ToughTongueAI = () => {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, []);
+  }, [sessionData]);
+
+  // Function to manually get analysis results
+  const getAnalysisResults = async () => {
+    const sessionIdToAnalyze = sessionIdInput.trim();
+
+    if (!sessionIdToAnalyze) {
+      alert("Please enter a valid session ID.");
+      return;
+    }
+
+    // Only check completion status if analyzing the current session
+    if (sessionData && sessionData.sessionId === sessionIdToAnalyze && !sessionCompleted) {
+      alert("Please complete your session before getting results.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const result = await analyzeSession(sessionIdToAnalyze);
+      if (result) {
+        console.log("Session analysis:", result);
+        // Handle error case from analyzeSession
+        if (result.error) {
+          setTestResults(formatErrorResults(result.message));
+        } else {
+          // Process the actual analysis data
+          setTestResults(formatAnalysisResults(result));
+        }
+      }
+    } catch (error) {
+      console.error("Failed to analyze session:", error);
+      setTestResults(formatErrorResults("Failed to complete your personality assessment."));
+    } finally {
+      setIsLoading(false);
+      setShowAssessment(true);
+
+      // Update sessionData with the analyzed session ID if it's different
+      if (sessionData?.sessionId !== sessionIdToAnalyze) {
+        setSessionData({
+          sessionId: sessionIdToAnalyze,
+          status: "external",
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
+  };
+
+  // Handle session ID input change
+  const handleSessionIdChange = (e) => {
+    setSessionIdInput(e.target.value);
+  };
 
   // Build the iframe URL with customization options
   const buildIframeUrl = () => {
-    // Replace SCENARIO_ID with your actual scenario ID
-    let baseUrl = "https://zap.orca-tone.ts.net/embed/basic/SCENARIO_ID";
+    // Use the minimal embed URL format
+    let baseUrl = `${toughTongueConfig.baseUrl}/embed/${toughTongueConfig.scenarioId}`;
 
     // Add customization parameters
     const params = new URLSearchParams();
 
-    if (userName) params.append("userName", userName);
-    if (userEmail) params.append("userEmail", userEmail);
-
     // Add custom styling options
-    params.append("name", "Personality Assessment");
-    params.append("color", "6366f1"); // Primary color from our CSS
-    params.append("background", "f8fafc"); // Background color from our CSS
+    params.append("name", toughTongueConfig.defaultStyles.name);
+    params.append("color", toughTongueConfig.defaultStyles.color);
+    params.append("bg", toughTongueConfig.defaultStyles.background || "black");
+
+    // Enable features as per the example
+    params.append("pulse", "true");
+    params.append("transcribe", "true");
 
     return `${baseUrl}?${params.toString()}`;
   };
+
+  const handleBackFromAssessment = () => {
+    setShowAssessment(false);
+    setShowIframe(false);
+    onAssessmentEnd();
+  };
+
+  // Show only iframe content when it's active
+  if (showIframe) {
+    return html`
+      <div class="container full-page-iframe">
+        <button class="btn back-button" onClick=${toggleIframe}>Back to Main Page</button>
+
+        <div class="iframe-container active">
+          <iframe
+            src=${buildIframeUrl()}
+            width="100%"
+            height="100%"
+            frameborder="0"
+            allow="microphone"
+          ></iframe>
+        </div>
+
+        <div class="session-id-box">
+          <label for="session-id-input">Session ID:</label>
+          <input
+            id="session-id-input"
+            type="text"
+            value=${sessionIdInput}
+            onChange=${handleSessionIdChange}
+            placeholder="Enter session ID"
+            class="session-id-input"
+          />
+        </div>
+
+        <div style="margin: 20px 0; text-align: center;">
+          ${!sessionCompleted &&
+          sessionData &&
+          sessionIdInput === sessionData.sessionId &&
+          html`
+            <p class="warning-text">You must complete your session before getting results.</p>
+          `}
+          <button class="btn" onClick=${getAnalysisResults}>Get Assessment Results</button>
+        </div>
+
+        ${isLoading
+          ? html`
+              <div class="loading-container">
+                <h2>Processing your assessment...</h2>
+                <div class="loading-spinner"></div>
+              </div>
+            `
+          : ""}
+        ${showAssessment && sessionData
+          ? html`
+              <${AssessmentPage} sessionData=${sessionData} onBack=${handleBackFromAssessment} />
+            `
+          : ""}
+      </div>
+    `;
+  }
 
   return html`
     <div class="personality-section">
@@ -132,39 +317,7 @@ const ToughTongueAI = () => {
           yourself.
         </p>
 
-        ${!showIframe &&
-        html`
-          <div class="form-group" style="margin-bottom: 1rem;">
-            <input
-              type="text"
-              placeholder="Your Name (optional)"
-              value=${userName}
-              onInput=${(e) => setUserName(e.target.value)}
-              style="padding: 0.5rem; margin-right: 1rem; border: 1px solid var(--light-gray); border-radius: 0.25rem;"
-            />
-            <input
-              type="email"
-              placeholder="Your Email (optional)"
-              value=${userEmail}
-              onInput=${(e) => setUserEmail(e.target.value)}
-              style="padding: 0.5rem; border: 1px solid var(--light-gray); border-radius: 0.25rem;"
-            />
-          </div>
-        `}
-
-        <button class="btn" onClick=${toggleIframe}>
-          ${showIframe ? "Hide Personality Assessment" : "Start Personality Assessment"}
-        </button>
-
-        <div class=${`iframe-container ${showIframe ? "active" : ""}`}>
-          <iframe
-            src=${buildIframeUrl()}
-            width="100%"
-            height="100%"
-            frameborder="0"
-            allow="microphone"
-          ></iframe>
-        </div>
+        <button class="btn" onClick=${toggleIframe}>Start Personality Assessment</button>
       </div>
     </div>
   `;
@@ -172,31 +325,47 @@ const ToughTongueAI = () => {
 
 // Main App Component
 const App = () => {
+  const [isAssessmentActive, setIsAssessmentActive] = useState(false);
+
+  const handleAssessmentStart = () => {
+    setIsAssessmentActive(true);
+  };
+
+  const handleAssessmentEnd = () => {
+    setIsAssessmentActive(false);
+  };
+
   return html`
     <${Navbar} />
     <main>
-      <section class="personality-section">
-        <div class="container">
-          <h2 class="section-title">Personality Types</h2>
-          <p class="section-subtitle">
-            Explore different personality types and their characteristics. Understanding these types
-            can help you better understand yourself and others.
-          </p>
-          <div class="personality-grid">
-            ${personalityTypes.map(
-              (type) => html`
-                <${PersonalityCard}
-                  title=${type.title}
-                  description=${type.description}
-                  key=${type.id}
-                />
-              `
-            )}
+      ${!isAssessmentActive &&
+      html`
+        <section class="personality-section">
+          <div class="container">
+            <h2 class="section-title">Personality Types</h2>
+            <p class="section-subtitle">
+              Explore different personality types and their characteristics. Understanding these
+              types can help you better understand yourself and others.
+            </p>
+            <div class="personality-grid">
+              ${personalityTypes.map(
+                (type) => html`
+                  <${PersonalityCard}
+                    title=${type.title}
+                    description=${type.description}
+                    key=${type.id}
+                  />
+                `
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      `}
 
-      <${ToughTongueAI} />
+      <${ToughTongueAI}
+        onAssessmentStart=${handleAssessmentStart}
+        onAssessmentEnd=${handleAssessmentEnd}
+      />
     </main>
   `;
 };

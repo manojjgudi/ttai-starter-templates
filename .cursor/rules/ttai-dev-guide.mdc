@@ -21,7 +21,7 @@ Tough Tongue AI provides a conversational AI platform for practicing and improvi
 
 ### 1. Creating Scenarios
 
-**Endpoint:** `https://zap.orca-tone.ts.net/backend/api/public/scenarios`  
+**Endpoint:** `https://api.toughtongueai.com/api/public/scenarios`  
 **Method:** POST
 
 ```json
@@ -51,22 +51,22 @@ Tough Tongue AI provides a conversational AI platform for practicing and improvi
 
 ### 2. Listing Scenarios
 
-**Endpoint:** `https://zap.orca-tone.ts.net/backend/api/public/scenarios`  
+**Endpoint:** `https://api.toughtongueai.com/api/public/scenarios`  
 **Method:** GET
 
 ### 3. Listing Sessions for a Scenario
 
-**Endpoint:** `https://zap.orca-tone.ts.net/backend/api/public/sessions?scenario_id=SCENARIO_ID&user_email=optional@email.com`  
+**Endpoint:** `https://api.toughtongueai.com/api/public/sessions?scenario_id=SCENARIO_ID&user_email=optional@email.com`  
 **Method:** GET
 
 ### 4. Getting Session Details
 
-**Endpoint:** `https://zap.orca-tone.ts.net/backend/api/public/sessions/SESSION_ID`  
+**Endpoint:** `https://api.toughtongueai.com/api/public/sessions/SESSION_ID`  
 **Method:** GET
 
 ### 5. Analyzing Session Data
 
-**Endpoint:** `https://zap.orca-tone.ts.net/backend/api/public/sessions/analyze`  
+**Endpoint:** `https://api.toughtongueai.com/api/public/sessions/analyze`  
 **Method:** POST
 
 ```json
@@ -77,12 +77,12 @@ Tough Tongue AI provides a conversational AI platform for practicing and improvi
 
 ### 6. Listing Featured Scenarios
 
-**Endpoint:** `https://zap.orca-tone.ts.net/backend/api/public/featured-scenarios`  
+**Endpoint:** `https://api.toughtongueai.com/api/public/featured-scenarios`  
 **Method:** GET
 
 ### 7. Listing Purchases
 
-**Endpoint:** `https://zap.orca-tone.ts.net/backend/api/public/purchases`  
+**Endpoint:** `https://api.toughtongueai.com/api/public/purchases`  
 **Method:** GET
 
 ## Embedding Scenarios in Your Application
@@ -91,7 +91,7 @@ Tough Tongue AI provides a conversational AI platform for practicing and improvi
 
 ```html
 <iframe
-  src="https://zap.orca-tone.ts.net/embed/basic/SCENARIO_ID"
+  src="https://app.toughtongueai.com/embed/basic/SCENARIO_ID"
   width="100%"
   height="600px"
   frameborder="0"
@@ -103,7 +103,7 @@ Tough Tongue AI provides a conversational AI platform for practicing and improvi
 
 ```html
 <iframe
-  src="https://zap.orca-tone.ts.net/embed/SCENARIO_ID"
+  src="https://app.toughtongueai.com/embed/SCENARIO_ID"
   width="100%"
   height="800px"
   frameborder="0"
@@ -115,7 +115,7 @@ Tough Tongue AI provides a conversational AI platform for practicing and improvi
 
 ```html
 <iframe
-  src="https://zap.orca-tone.ts.net/embed/minimal/SCENARIO_ID"
+  src="https://app.toughtongueai.com/embed/minimal/SCENARIO_ID"
   width="100%"
   height="300px"
   frameborder="0"
@@ -129,7 +129,7 @@ Add URL parameters to skip the login screen:
 
 ```html
 <iframe
-  src="https://zap.orca-tone.ts.net/embed/SCENARIO_ID?userName=John%20Doe&userEmail=john@example.com"
+  src="https://app.toughtongueai.com/embed/SCENARIO_ID?userName=John%20Doe&userEmail=john@example.com"
   width="100%"
   height="800px"
   frameborder="0"
@@ -152,7 +152,7 @@ Add this code to the page that hosts your iframe to listen for events:
 ```javascript
 window.addEventListener('message', (event) => {
   // Optional: verify the origin for security
-  // if (event.origin !== 'https://zap.orca-tone.ts.net') return;
+  // if (event.origin !== 'https://app.toughtongueai.com') return;
 
   const data = event.data;
 
