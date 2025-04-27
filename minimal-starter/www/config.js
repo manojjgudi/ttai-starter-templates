@@ -52,7 +52,6 @@ export const toughTongueConfig = {
 export const apiConfig = {
   baseUrl: API_BASE_URL,
   endpoints: {
-    sessions: (sessionId) => `${API_BASE_URL}/sessions/${sessionId}`,
     analyze: `${API_BASE_URL}/analyze`,
   },
 };
