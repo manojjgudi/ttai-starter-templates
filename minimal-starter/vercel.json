@@ -6,8 +6,8 @@
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
-        "includeFiles": ["**/*"],
-        "environments": ["TTAI_TOKEN", "API_BASE_URL", "PORT"]
+        "runtime": "python3.9",
+        "includeFiles": ["**/*"]
       }
     },
     { "src": "www/**", "use": "@vercel/static" }

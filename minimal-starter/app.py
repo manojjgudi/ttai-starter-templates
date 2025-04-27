@@ -3,11 +3,11 @@ import pathlib
 from flask import send_from_directory
 from dotenv import load_dotenv
 
-# Import the Flask app from index.py
-from api.index import app
-
 # Load environment variables from .env file (might be redundant but kept for safety)
 load_dotenv()
+
+# Import the Flask app from index.py
+from api.index import app
 
 # Get the directory where the Flask app is located
 BASE_DIR = pathlib.Path(__file__).parent.absolute()
