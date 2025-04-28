@@ -38,7 +38,7 @@ export const toughTongueConfig = {
   baseUrl: "https://app.toughtongueai.com",
 
   // Scenario and authentication
-  scenarioId: "680d16f136e4c33b7d517892",
+  scenarioId: "680df71436e4c33b7d517adc",
 
   // Default styling options
   defaultStyles: {
